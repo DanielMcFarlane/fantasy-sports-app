@@ -224,7 +224,7 @@ object FantasySportsApp extends App {
       val (missing, playerTotals, teamTotal) = calcTeamScore(playersInput, weeks)
 
       if (missing.nonEmpty) {
-        println(s"Players not found: ${missing.mkString(", ")}")
+        println(s"${missing.mkString(", ")} not found")
       }
 
       println("\n           CUSTOM TEAM SCORES")
@@ -269,19 +269,22 @@ object FantasySportsApp extends App {
     if (lastMonth.isEmpty) 0.0 else lastMonth.sum.toDouble / lastMonth.length
   }
 
-  // Pure func to compare the average scores of two players for the last month
+  // Pure func to compare the average scores of two players for the last month using pattern matching for errors
   def compareAverages(data : PlayerData, player1 : String, player2 : String) : Either[String, (Double, Double)] = {
-    for {
-      score1 <- data.get(player1).toRight(s"Player not found: $player1")
-      score2 <- data.get(player2).toRight(s"Player not found: $player2")
-    } yield (getMonthlyAverage(score1), getMonthlyAverage(score2))
+    (data.get(player1), data.get(player2)) match {
+      case (None, None) =>
+        Left(s"$player1 and $player2 not found")
+      case (None, _) =>
+        Left(s"$player1 not found")
+      case (_, None) =>
+        Left(s"$player2 not found")
+      case (Some(score1), Some(score2)) =>
+        Right((getMonthlyAverage(score1), getMonthlyAverage(score2)))
+    }
   }
 
   // Pure func to get the total score for a team and finds any missing players
-  def getTeamScore(
-                    data : PlayerData,
-                    team : List[String],
-                    week : Int) : (List[String], Map[String, Int], Int) = {
+  def getTeamScore(data : PlayerData, team : List[String], week : Int) : (List[String], Map[String, Int], Int) = {
     // Ensure there's a team and a valid week number before proceeding
     if (team.isEmpty || week <= 0) {
       (team, Map.empty[String, Int], 0)
