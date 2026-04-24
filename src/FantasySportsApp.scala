@@ -119,7 +119,7 @@ object FantasySportsApp extends App {
 
   // ------------- Action Handlers (impure/ho) -------------
 
-  // HO function to separate UI from score retrieval
+  // HO function to separate UI from score retrieval using map + mkString
   def displayCurrentScores(fetchScores : () => Map[String, Int]) : Unit = {
     val scores = fetchScores()
 
@@ -129,15 +129,17 @@ object FantasySportsApp extends App {
       println("\n          CURRENT WEEK POINTS")
       println("-" * 40)
 
-      scores.toSeq.sortBy(_._1).foreach {
-        case (player, score) =>
-          println(s"$player: $score points")
-      }
+      println(scores.toSeq.sortBy(_._1).map {
+          case (player, score) =>
+            s"$player: $score points"
+        }
+        .mkString("\n")
+      )
     }
     readLine("\nPress enter to return to menu")
   }
 
-  // HO function to separate UI from high/low score retrieval
+  // HO function to separate UI from high/low score retrieval using foldLeft
   def displayHighLowScores(fetchScores : () => Map[String, (Int, Int)]) : Unit = {
     val scores = fetchScores()
 
@@ -147,15 +149,18 @@ object FantasySportsApp extends App {
       println("\n       HIGHEST AND LOWEST POINTS")
       println("-" * 40)
 
-      scores.toSeq.sortBy(_._1).foreach {
-        case (player, (high, low)) =>
-          println(s"$player: High $high, Low $low")
+      val formattedOutput = scores.toSeq
+        .sortBy(_._1)
+        .foldLeft("") {
+        case (output, (player, (high, low))) =>
+          output + s"$player: High $high, Low $low\n"
       }
+      println(formattedOutput)
     }
     readLine("\nPress enter to return to menu")
   }
 
-  // HO function to seprate UI from total over 500 retrieval
+  // HO function to seprate UI from total over 500 retrieval using for each
   def displayTotalsOver500(fetchTotals : () => Map[String, Int]) : Unit = {
     val totals = fetchTotals()
 
@@ -165,7 +170,9 @@ object FantasySportsApp extends App {
       println("\n        PLAYERS WITH TOTAL > 500")
       println("-" * 40)
 
-      totals.toSeq.sortBy(_._1).foreach {
+      totals.toSeq
+        .sortBy(_._1)
+        .foreach {
         case (player, total) =>
           println(s"$player: $total points")
       }
@@ -173,7 +180,7 @@ object FantasySportsApp extends App {
     readLine("\nPress enter to return to menu")
   }
 
-  // HO function to separate UI from average comparison
+  // HO function to separate UI from average comparison using pattern matching
   def displayComparedAverages(compareAvg : (String, String) => Either[String, (Double, Double)]) : Unit = {
     val player1 = readLine("Enter first player: ").trim.replace(" ", "_")
     val player2 = readLine("Enter second player: ").trim.replace(" ", "_")
