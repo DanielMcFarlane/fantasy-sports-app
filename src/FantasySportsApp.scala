@@ -21,7 +21,7 @@ object FantasySportsApp extends App {
   val loadResults = loadData("data.txt")
 
   // Handle file loading using Try
-  val playerScores : PlayerData = loadResults match {
+  val playerScores: PlayerData = loadResults match {
     case Success(data) => data
     case Failure(exception) =>
       println(s"Error loading file: ${exception.getMessage}")
@@ -54,7 +54,7 @@ object FantasySportsApp extends App {
   // ------------- UI and Menu -------------
 
   // Display the main menu and prompt user input
-  def displayMenu() : Int = {
+  def displayMenu(): Int = {
     println("\n" + "=" * 40)
     println("       FANTASY SPORTS APPLICATION")
     println("=" * 40)
@@ -71,7 +71,7 @@ object FantasySportsApp extends App {
   }
 
   // Execute the selected option
-  def menuOptions(option : Int) : Boolean = {
+  def menuOptions(option: Int): Boolean = {
     actionMap.get(option) match {
       case Some(action) => action()
       case None =>
@@ -81,37 +81,37 @@ object FantasySportsApp extends App {
   }
 
   // Hande option 1
-  def handleCurrentScores() : Boolean = {
+  def handleCurrentScores(): Boolean = {
     displayCurrentScores(() => getCurrentScores(playerScores))
     true
   }
 
   // Handle option 2
-  def handleHighLow() : Boolean = {
+  def handleHighLow(): Boolean = {
     displayHighLowScores(() => getHighLowScores(playerScores))
     true
   }
 
   // Handle option 3
-  def handleTotalsOver500() : Boolean = {
+  def handleTotalsOver500(): Boolean = {
     displayTotalsOver500(() => getTotalsOver500(playerScores))
     true
   }
 
   // Handle option 4
-  def handleCompare() : Boolean = {
+  def handleCompare(): Boolean = {
     displayComparedAverages(compareAverages(playerScores, _, _))
     true
   }
 
   // Handle options 5
-  def handleTeamScore() : Boolean = {
+  def handleTeamScore(): Boolean = {
     displayTeamScore(getTeamScore(playerScores, _, _))
     true
   }
 
   // Handle option 0
-  def handleQuit() : Boolean = {
+  def handleQuit(): Boolean = {
     println("Exiting application. Goodbye.")
     false
   }
@@ -120,7 +120,7 @@ object FantasySportsApp extends App {
   // ------------- Action Handlers (impure/ho) -------------
 
   // HO function to separate UI from score retrieval using map + mkString
-  def displayCurrentScores(fetchScores : () => Map[String, Int]) : Unit = {
+  def displayCurrentScores(fetchScores: () => Map[String, Int]): Unit = {
     val scores = fetchScores()
 
     if (scores.isEmpty) {
@@ -140,7 +140,7 @@ object FantasySportsApp extends App {
   }
 
   // HO function to separate UI from high/low score retrieval using foldLeft
-  def displayHighLowScores(fetchScores : () => Map[String, (Int, Int)]) : Unit = {
+  def displayHighLowScores(fetchScores: () => Map[String, (Int, Int)]): Unit = {
     val scores = fetchScores()
 
     if (scores.isEmpty) {
@@ -161,7 +161,7 @@ object FantasySportsApp extends App {
   }
 
   // HO function to seprate UI from total over 500 retrieval using for each
-  def displayTotalsOver500(fetchTotals : () => Map[String, Int]) : Unit = {
+  def displayTotalsOver500(fetchTotals: () => Map[String, Int]): Unit = {
     val totals = fetchTotals()
 
     if (totals.isEmpty) {
@@ -181,7 +181,7 @@ object FantasySportsApp extends App {
   }
 
   // HO function to separate UI from average comparison using pattern matching
-  def displayComparedAverages(compareAvg : (String, String) => Either[String, (Double, Double)]) : Unit = {
+  def displayComparedAverages(compareAvg: (String, String) => Either[String, (Double, Double)]): Unit = {
     val player1 = readLine("Enter first player: ").trim.replace(" ", "_")
     val player2 = readLine("Enter second player: ").trim.replace(" ", "_")
 
@@ -206,7 +206,7 @@ object FantasySportsApp extends App {
   }
 
   // HO function to separate UI from team score calculation
-  def displayTeamScore(calcTeamScore : (List[String], Int) => (List[String], Map[String, Int], Int)) : Unit = {
+  def displayTeamScore(calcTeamScore: (List[String], Int) => (List[String], Map[String, Int], Int)): Unit = {
     val playersInput = readLine("Enter players (comma separated): ")
       .split(",")
       .map(_.trim.replace(" ", "_"))
@@ -243,17 +243,17 @@ object FantasySportsApp extends App {
   // ------------- Data Operations (pure) -------------
 
   // Get most recent score for each player
-  def getCurrentScores(data : PlayerData) : Map[String, Int] =
+  def getCurrentScores(data: PlayerData): Map[String, Int] =
     data.view.mapValues(_.lastOption.getOrElse(0)).toMap
 
   // Calculate highest and lowest score for each player
-  def getHighLowScores(data : PlayerData) : Map[String, (Int, Int)] =
+  def getHighLowScores(data: PlayerData): Map[String, (Int, Int)] =
     data.view.mapValues { scores =>
       if (scores.isEmpty) (0, 0) else (scores.max, scores.min)
     }.toMap
 
   // Filter players with totals over 500
-  def getTotalsOver500(data : PlayerData) : Map[String, Int] =
+  def getTotalsOver500(data: PlayerData): Map[String, Int] =
     data.view
       .mapValues(_.sum)
       .filter {
@@ -263,13 +263,13 @@ object FantasySportsApp extends App {
       .toMap
 
   // Get average last 4 scores (monthly)
-  def getMonthlyAverage(scores : List[Int]) : Double = {
+  def getMonthlyAverage(scores: List[Int]): Double = {
     val lastMonth = scores.takeRight(4)
     if (lastMonth.isEmpty) 0.0 else lastMonth.sum.toDouble / lastMonth.length
   }
 
   // Compare two averages using pattern matching
-  def compareAverages(data : PlayerData, player1 : String, player2 : String) : Either[String, (Double, Double)] = {
+  def compareAverages(data: PlayerData, player1: String, player2: String): Either[String, (Double, Double)] = {
     (data.get(player1), data.get(player2)) match {
       case (None, None) =>
         Left(s"$player1 and $player2 not found")
@@ -283,7 +283,7 @@ object FantasySportsApp extends App {
   }
 
   // Calculate team score for a given week
-  def getTeamScore(data : PlayerData, team : List[String], week : Int) : (List[String], Map[String, Int], Int) = {
+  def getTeamScore(data: PlayerData, team: List[String], week: Int): (List[String], Map[String, Int], Int) = {
     if (team.isEmpty || week <= 0) {
       (team, Map.empty[String, Int], 0)
     } else {
@@ -304,7 +304,7 @@ object FantasySportsApp extends App {
   // ------------- Utilities -------------
 
   // Loads player scores from a text file using safe resource handling
-  def loadData(filename : String) : Try[PlayerData] = {
+  def loadData(filename: String): Try[PlayerData] = {
     Using(Source.fromFile(filename)) { source =>
       source.getLines().map { line =>
         val parts = line.split(",").map(_.trim)
