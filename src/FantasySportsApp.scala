@@ -23,8 +23,8 @@ object FantasySportsApp extends App {
   // Handle file loading using Try
   val playerScores : PlayerData = loadResults match {
     case Success(data) => data
-    case Failure(_) =>
-      println("Error loading file.")
+    case Failure(exception) =>
+      println(s"Error loading file: ${exception.getMessage}")
       Map.empty
   }
 
@@ -308,7 +308,13 @@ object FantasySportsApp extends App {
     Using(Source.fromFile(filename)) { source =>
       source.getLines().map { line =>
         val parts = line.split(",").map(_.trim)
-        parts.head -> parts.tail.flatMap(_.toIntOption).toList
+        val playerName = parts.head
+        val parsedScores = parts.tail.map(_.toIntOption)
+
+        if (parsedScores.exists(_.isEmpty)) {
+          throw new IllegalArgumentException(s"Invalid data found in $playerName")
+        }
+        playerName -> parsedScores.flatten.toList
       }.toMap
     }
   }
